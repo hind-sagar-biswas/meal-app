@@ -24,7 +24,7 @@ return new class extends Migration
             $table->unsignedTinyInteger('dinner')->default(1);
 
             $table->boolean('has_logged')->default(false); // A whole month's meal is generated, but only logged automatically after the day ends and UI only shows the logged ones
-            
+
             $table->timestamps();
 
             $table->unique(['user_id', 'date']);

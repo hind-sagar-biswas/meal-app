@@ -18,7 +18,7 @@ use Laravel\Sanctum\HasApiTokens;
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, HasApiTokens;
+    use HasApiTokens, HasFactory, Notifiable;
 
     public const CACHE_KEY = 'users';
 
@@ -35,7 +35,8 @@ class User extends Authenticatable
         ];
     }
 
-    public static function booted() {
+    public static function booted()
+    {
         parent::booted();
 
         static::saved(function (self $user) {

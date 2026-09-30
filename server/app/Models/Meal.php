@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Cache;
 class Meal extends Model
 {
     public const LUNCH_OPT_CUTOFF = '5:00 AM';
+
     public const DINNER_OPT_CUTOFF = '2:20 PM';
 
     protected $casts = [
@@ -52,7 +53,7 @@ class Meal extends Model
     {
         $cutoff = $this->date->copy()->setTimeFromTimeString(self::LUNCH_OPT_CUTOFF);
 
-        if (!now()->lessThan($cutoff)) {
+        if (! now()->lessThan($cutoff)) {
             throw new \Exception('Too late to opt out of lunch');
         }
 
@@ -63,7 +64,7 @@ class Meal extends Model
     {
         $cutoff = $this->date->copy()->setTimeFromTimeString(self::DINNER_OPT_CUTOFF);
 
-        if (!now()->lessThan($cutoff)) {
+        if (! now()->lessThan($cutoff)) {
             throw new \Exception('Too late to opt out of dinner');
         }
 
