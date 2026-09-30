@@ -17,7 +17,8 @@ class Meal extends Model
     public const DINNER_OPT_CUTOFF = '2:20 PM';
 
     protected $casts = [
-        'date' => 'date',
+        'date' => 'date:Y-m-d',
+        'has_logged' => 'boolean',
     ];
 
     public function user(): BelongsTo
@@ -30,20 +31,22 @@ class Meal extends Model
         return $this->belongsTo(Month::class);
     }
 
-    public static function make(Carbon $date, ?Month $month = null)
+    public static function make(Carbon|string $date, ?Month $month = null)
     {
+        $carbonDate = $date instanceof Carbon ? $date : Carbon::parse($date);
+
         if (! $month) {
-            $month = Month::where('year', $date->year)->where('month', $date->month)->firstOrFail();
+            $month = Month::where('year', $carbonDate->year)->where('month', $carbonDate->month)->firstOrFail();
         }
 
         $users = Cache::rememberForever(User::CACHE_KEY, fn () => User::where('is_active', true)->get(['id', 'name', 'email']));
-        $lunchDefault = $date->isFriday() ? 2 : 1;
+        $lunchDefault = $carbonDate->isFriday() ? 2 : 1;
 
         foreach ($users as $user) {
             self::create([
                 'user_id' => $user->id,
                 'month_id' => $month->id,
-                'date' => $date,
+                'date' => $carbonDate->toDateString(),
                 'breakfast' => 0,
                 'lunch' => $lunchDefault,
                 'dinner' => 1,
@@ -53,7 +56,7 @@ class Meal extends Model
 
     public static function logToday()
     {
-        self::where('date', now()->startOfDay())->update(['has_logged' => true]);
+        self::where('date', now()->toDateString())->update(['has_logged' => true]);
     }
 
     public function optInBreakfast(): void

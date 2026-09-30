@@ -29,12 +29,12 @@ class Month extends Model
 
         static::created(function (self $month) {
             // Create the whole month's meal entries for everyone
-            $startDate = Carbon::createFromDate($month->year, $month->month, 1);
-            $endDate = $startDate->copy()->endOfMonth();
+            $startDate = Carbon::createFromDate($month->year, $month->month, 1)->startOfDay();
+            $endDate = $startDate->copy()->endOfMonth()->startOfDay();
 
             $period = CarbonPeriod::create($startDate, $endDate);
             foreach ($period as $date) {
-                Meal::make($date, $month);
+                Meal::make($date->copy()->startOfDay(), $month);
             }
         });
     }
