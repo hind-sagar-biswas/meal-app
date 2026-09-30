@@ -40,12 +40,12 @@ class User extends Authenticatable
 
         static::saved(function (self $user) {
             Cache::forget(self::CACHE_KEY);
-            Cache::forever(self::CACHE_KEY, self::all(['id', 'name', 'email']));
+            Cache::forever(self::CACHE_KEY, self::where('is_active', true)->get(['id', 'name', 'email']));
         });
 
         static::deleted(function (self $user) {
             Cache::forget(self::CACHE_KEY);
-            Cache::forever(self::CACHE_KEY, self::all(['id', 'name', 'email']));
+            Cache::forever(self::CACHE_KEY, self::where('is_active', true)->get(['id', 'name', 'email']));
         });
     }
 

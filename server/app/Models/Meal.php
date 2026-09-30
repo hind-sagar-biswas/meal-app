@@ -32,7 +32,7 @@ class Meal extends Model
             $month = Month::where('year', $date->year)->where('month', $date->month)->firstOrFail();
         }
 
-        $users = Cache::rememberForever(User::CACHE_KEY, fn () => User::all(['id', 'name', 'email']));
+        $users = Cache::rememberForever(User::CACHE_KEY, fn () => User::where('is_active', true)->get(['id', 'name', 'email']));
 
         foreach ($users as $user) {
             self::create([
