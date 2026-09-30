@@ -19,7 +19,7 @@ return new class extends Migration
             $table->unsignedTinyInteger('month');
             $table->unsignedTinyInteger('breakfast_price')->default(20);
             $table->boolean('is_closed')->default(false);
-            $table->foreignIdFor(User::class, 'closed_by')->nullable();
+            $table->foreignIdFor(User::class, 'closed_by')->nullable()->constrained()->nullOnDelete()->cascadeOnUpdate();
             $table->timestamp('closed_at')->nullable();
             $table->timestamps();
 

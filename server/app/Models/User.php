@@ -7,8 +7,10 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Cache;
 use Laravel\Sanctum\HasApiTokens;
 
 #[Fillable(['name', 'email', 'password'])]
@@ -17,6 +19,8 @@ class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, HasApiTokens;
+
+    public const CACHE_KEY = 'users';
 
     /**
      * Get the attributes that should be cast.
@@ -29,5 +33,24 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public static function booted() {
+        parent::booted();
+
+        static::saved(function (self $user) {
+            Cache::forget(self::CACHE_KEY);
+            Cache::forever(self::CACHE_KEY, self::all(['id', 'name', 'email']));
+        });
+
+        static::deleted(function (self $user) {
+            Cache::forget(self::CACHE_KEY);
+            Cache::forever(self::CACHE_KEY, self::all(['id', 'name', 'email']));
+        });
+    }
+
+    public function meals(): HasMany
+    {
+        return $this->hasMany(Meal::class);
     }
 }
