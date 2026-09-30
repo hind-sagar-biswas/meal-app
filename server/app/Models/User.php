@@ -6,6 +6,7 @@ namespace App\Models;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -48,6 +49,22 @@ class User extends Authenticatable
             Cache::forget(self::CACHE_KEY);
             Cache::forever(self::CACHE_KEY, self::where('is_active', true)->get(['id', 'name', 'email']));
         });
+    }
+
+    /**
+     * Where the Expo channel sends this user's notifications.
+     *
+     * @return Collection<int, ExpoPushToken>
+     */
+    public function routeNotificationForExpo(): Collection
+    {
+        return $this->deviceTokens->pluck('token');
+    }
+
+
+    public function deviceTokens(): HasMany
+    {
+        return $this->hasMany(DeviceToken::class);
     }
 
     public function meals(): HasMany
