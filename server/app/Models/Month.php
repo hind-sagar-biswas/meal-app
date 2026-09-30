@@ -13,6 +13,7 @@ class Month extends Model
 {
     protected $casts = [
         'is_closed' => 'boolean',
+        'closed_at' => 'datetime',
     ];
 
     #[Override]
@@ -42,6 +43,11 @@ class Month extends Model
         return $this->hasMany(Meal::class);
     }
 
+    public function expenses(): HasMany
+    {
+        return $this->hasMany(Expense::class);
+    }
+
     public static function ongoing(): self
     {
         return self::firstOrCreate([
@@ -55,5 +61,25 @@ class Month extends Model
         $previousMonth = now()->subMonth();
 
         return self::where('year', $previousMonth->year)->where('month', $previousMonth->month)->first();
+    }
+
+    public static function findFromDate(Carbon $date): ?self
+    {
+        return self::where('year', $date->year)->where('month', $date->month)->first();
+    }
+
+    public function open() {
+        if (!$this->is_closed) {
+            throw new \Exception('Month is not closed!');
+        }
+
+        if (now()->greaterThan($this->closed_at->copy()->addHours(6))) {
+            throw new \Exception('The deadline to open the month has passed!');
+        }
+
+        $this->is_closed = false;
+        $this->closed_by = null;
+        $this->closed_at = null;
+        $this->save();
     }
 }
