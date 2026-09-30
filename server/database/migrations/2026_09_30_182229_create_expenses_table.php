@@ -23,6 +23,8 @@ return new class extends Migration
             $table->boolean('is_grouped')->default(true);
             $table->integer('amount');
             $table->timestamps();
+
+            $table->index(['month_id', 'is_grouped', 'date']);
         });
     }
 

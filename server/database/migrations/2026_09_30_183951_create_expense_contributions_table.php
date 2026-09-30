@@ -23,6 +23,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->unique(['expense_id', 'user_id']);
+            $table->index(['month_id', 'user_id']);
         });
     }
 

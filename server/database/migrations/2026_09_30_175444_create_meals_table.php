@@ -28,6 +28,8 @@ return new class extends Migration
             $table->timestamps();
 
             $table->unique(['user_id', 'date']);
+            $table->index(['month_id', 'has_logged', 'user_id']);
+            $table->index(['date', 'has_logged']);
         });
     }
 
