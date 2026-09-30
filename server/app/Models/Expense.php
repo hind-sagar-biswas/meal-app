@@ -4,12 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Auth;
 
 class Expense extends Model
 {
     protected $casts = [
         'date' => 'date',
+        'is_grouped' => 'boolean',
     ];
 
     public static function booted()
@@ -49,5 +51,10 @@ class Expense extends Model
     public function month(): BelongsTo
     {
         return $this->belongsTo(Month::class);
+    }
+
+    public function contributions(): HasMany
+    {
+        return $this->hasMany(ExpenseContribution::class);
     }
 }

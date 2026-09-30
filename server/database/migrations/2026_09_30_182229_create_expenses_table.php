@@ -20,6 +20,7 @@ return new class extends Migration
             $table->date('date');
             $table->string('cause');
             $table->string('note')->nullable();
+            $table->boolean('is_grouped')->default(true);
             $table->integer('amount');
             $table->timestamps();
         });
