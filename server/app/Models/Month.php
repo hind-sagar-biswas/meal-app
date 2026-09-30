@@ -50,6 +50,16 @@ class Month extends Model
         return $this->hasMany(Expense::class);
     }
 
+    public function contributions(): HasMany
+    {
+        return $this->hasMany(ExpenseContribution::class);
+    }
+
+    public function participantResults(): HasMany
+    {
+        return $this->hasMany(ParticipantResult::class);
+    }
+
     public function result(): HasOne
     {
         return $this->hasOne(MonthResult::class);
@@ -110,18 +120,18 @@ class Month extends Model
             ->selectRaw('SUM(breakfast) as total_breakfast, SUM(lunch) as total_lunch, SUM(dinner) as total_dinner')
             ->first();
 
-        $breakfastCount = $counts->total_breakfast;
-        $mealCount = $counts->total_lunch + $counts->total_dinner;
+        $breakfastCount = (int) ($counts?->total_breakfast ?? 0);
+        $mealCount = (int) (($counts?->total_lunch ?? 0) + ($counts?->total_dinner ?? 0));
 
-        $bazarExpense = $this->expenses()->where('is_grouped', false)->sum('amount');
-        $groupedExpense = $this->expenses()->where('is_grouped', true)->sum('amount');
-        $totalExpense = $this->expenses()->sum('amount');
+        $bazarExpense = (int) $this->expenses()->where('is_grouped', false)->sum('amount');
+        $groupedExpense = (int) $this->expenses()->where('is_grouped', true)->sum('amount');
+        $totalExpense = (int) $this->expenses()->sum('amount');
 
         $breakfastExpense = $breakfastCount * $this->breakfast_price;
         $mealExpense = $bazarExpense - $breakfastExpense;
 
-        $mealRate = (int) (($mealExpense / $mealCount) * 1_000_000);
-        $groupExpensePerPerson = (int) (($groupedExpense / $participantCount) * 1_000_000);
+        $mealRate = $mealCount > 0 ? (int) (($mealExpense / $mealCount) * 1_000_000) : 0;
+        $groupExpensePerPerson = $participantCount > 0 ? (int) (($groupedExpense / $participantCount) * 1_000_000) : 0;
 
         /** @var MonthResult $result */
         $result = MonthResult::updateOrCreate(

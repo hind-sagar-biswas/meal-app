@@ -3,9 +3,25 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ParticipantResult extends Model
 {
+    public function month(): BelongsTo
+    {
+        return $this->belongsTo(Month::class);
+    }
+
+    public function monthResult(): BelongsTo
+    {
+        return $this->belongsTo(MonthResult::class);
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public static function calculate(MonthResult $result, User $participant): self
     {
         $month = $result->month;
@@ -17,16 +33,16 @@ class ParticipantResult extends Model
             ->selectRaw('SUM(breakfast) as total_breakfast, SUM(lunch) as total_lunch, SUM(dinner) as total_dinner')
             ->first();
 
-        $breakfastCount = $counts->total_breakfast;
-        $mealCount = $counts->total_lunch + $counts->total_dinner;
+        $breakfastCount = (int) ($counts?->total_breakfast ?? 0);
+        $mealCount = (int) (($counts?->total_lunch ?? 0) + ($counts?->total_dinner ?? 0));
 
         $breakfastExpense = $breakfastCount * $month->breakfast_price;
         $mealExpense = $mealCount * $result->meal_rate;
         $groupExpense = $result->group_expense_per_person;
 
-        $totalExpense = round($breakfastExpense + ($mealExpense + $groupExpense) / 1_000_000);
+        $totalExpense = (int) round($breakfastExpense + ($mealExpense + $groupExpense) / 1_000_000);
 
-        $totalContribution = $participant->contributions()->where('month_id', $month->id)->sum('amount');
+        $totalContribution = (int) $participant->contributions()->where('month_id', $month->id)->sum('amount');
 
         $adjustment = $totalExpense - $totalContribution;
 

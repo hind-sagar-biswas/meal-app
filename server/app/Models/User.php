@@ -55,8 +55,18 @@ class User extends Authenticatable
         return $this->hasMany(Meal::class);
     }
 
+    public function expenses(): HasMany
+    {
+        return $this->hasMany(Expense::class);
+    }
+
     public function contributions(): HasMany
     {
         return $this->hasMany(ExpenseContribution::class);
+    }
+
+    public function participantResults(): HasMany
+    {
+        return $this->hasMany(ParticipantResult::class);
     }
 }
