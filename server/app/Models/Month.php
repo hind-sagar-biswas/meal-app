@@ -7,6 +7,7 @@ use Carbon\CarbonPeriod;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\Auth;
 use Override;
 
@@ -47,6 +48,11 @@ class Month extends Model
     public function expenses(): HasMany
     {
         return $this->hasMany(Expense::class);
+    }
+
+    public function result(): HasOne
+    {
+        return $this->hasOne(MonthResult::class);
     }
 
     public static function ongoing(): self
