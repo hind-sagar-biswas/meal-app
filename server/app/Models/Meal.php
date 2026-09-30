@@ -34,12 +34,16 @@ class Meal extends Model
         }
 
         $users = Cache::rememberForever(User::CACHE_KEY, fn () => User::where('is_active', true)->get(['id', 'name', 'email']));
+        $lunchDefault = $date->isFriday() ? 2 : 1;
 
         foreach ($users as $user) {
             self::create([
                 'user_id' => $user->id,
                 'month_id' => $month->id,
                 'date' => $date,
+                'breakfast' => 0,
+                'lunch' => $lunchDefault,
+                'dinner' => 1,
             ]);
         }
     }
@@ -49,7 +53,16 @@ class Meal extends Model
         self::where('date', now()->startOfDay())->update(['has_logged' => true]);
     }
 
-    public function optOutLunch()
+    public function optInBreakfast(): void
+    {
+        if ($this->breakfast !== 0) {
+            throw new \Exception('Breakfast is already opted in. Any further changes require manual edit.');
+        }
+
+        $this->update(['breakfast' => 1]);
+    }
+
+    public function optOutLunch(): void
     {
         $cutoff = $this->date->copy()->setTimeFromTimeString(self::LUNCH_OPT_CUTOFF);
 
@@ -60,7 +73,7 @@ class Meal extends Model
         $this->update(['lunch' => 0]);
     }
 
-    public function optOutDinner()
+    public function optOutDinner(): void
     {
         $cutoff = $this->date->copy()->setTimeFromTimeString(self::DINNER_OPT_CUTOFF);
 
