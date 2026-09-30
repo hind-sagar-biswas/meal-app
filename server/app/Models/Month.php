@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -13,6 +14,9 @@ use Override;
 
 class Month extends Model
 {
+    /** @use HasFactory<MonthFactory> */
+    use HasFactory;
+
     protected $casts = [
         'is_closed' => 'boolean',
         'closed_at' => 'datetime',

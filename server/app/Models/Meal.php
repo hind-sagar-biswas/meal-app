@@ -3,12 +3,15 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Cache;
 
 class Meal extends Model
 {
+    use HasFactory;
+
     public const LUNCH_OPT_CUTOFF = '5:00 AM';
 
     public const DINNER_OPT_CUTOFF = '2:20 PM';
