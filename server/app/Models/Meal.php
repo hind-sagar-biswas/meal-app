@@ -54,9 +54,14 @@ class Meal extends Model
         }
     }
 
-    public static function logToday()
+    public static function logToday(): int
     {
-        self::where('date', now()->toDateString())->update(['has_logged' => true]);
+        $activeUserIds = User::where('is_active', true)->pluck('id');
+
+        return self::where('date', now()->toDateString())
+            ->whereIn('user_id', $activeUserIds)
+            ->where('has_logged', false)
+            ->update(['has_logged' => true]);
     }
 
     public function optInBreakfast(): void
