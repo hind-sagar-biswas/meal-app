@@ -20,7 +20,9 @@ class EnsureIdempotency
             return $next($request);
         }
 
-        $cacheKey = "idempotency:{$request->user()->id}:{$idempotencyKey}";
+        $method = $request->method();
+        $path = $request->path();
+        $cacheKey = "idempotency:{$request->user()->id}:{$method}:{$path}:{$idempotencyKey}";
 
         $cachedResponse = Cache::get($cacheKey);
         if ($cachedResponse) {
