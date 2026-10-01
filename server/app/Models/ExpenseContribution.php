@@ -10,6 +10,7 @@ use Override;
 class ExpenseContribution extends Model
 {
     use HasFactory;
+
     #[Override]
     public static function booted()
     {

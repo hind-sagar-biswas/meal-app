@@ -25,5 +25,4 @@ class DeviceToken extends Model
     {
         return $this->hasMany(PushTicket::class);
     }
-
 }
