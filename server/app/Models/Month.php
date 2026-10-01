@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Override;
 
 class Month extends Model
@@ -72,10 +73,12 @@ class Month extends Model
 
     public static function ongoing(): self
     {
-        return self::firstOrCreate([
-            'year' => now()->year,
-            'month' => now()->month,
-        ]);
+        return Cache::lock('month:ongoing', 10)->block(5, function () {
+            return self::firstOrCreate([
+                'year' => now()->year,
+                'month' => now()->month,
+            ]);
+        });
     }
 
     public static function previous(): ?self
