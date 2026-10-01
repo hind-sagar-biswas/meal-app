@@ -27,6 +27,7 @@ This document defines the complete REST API contract, business rules, payloads, 
    - **Active Invalidation**: Any meal edit, batch update, or expense mutation immediately evicts all related caches via `MealService::invalidateMealCaches` and `ExpenseService`.
 4. **Idempotency**:
    - Financial mutations (`expenses.store`, `expenses.adjust`), month status mutations (`months.close`, `months.reopen`), and batch meal edits (`meals.update`, `meals.day-tally`, `meals.day-off`, `meals.date-range-off`) use the `idempotent` middleware.
+   - Cache key is strictly scoped by User ID, HTTP Method, and Path: `idempotency:{uid}:{method}:{path}:{key}`.
    - Clients send `X-Idempotency-Key: <UUID>`. Cached response is replayed on identical keys with header `X-Idempotent-Replay: true`.
 5. **Rate Limiting**:
    - Inline throttles declared per route:

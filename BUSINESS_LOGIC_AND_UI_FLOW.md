@@ -132,7 +132,7 @@ User Action / Mutation ──► Invalidate Caches
 | `meals:my_month:{uid}:{mid}` | 30s | User personal 31-day breakdown | Any meal edit for that user |
 | `meals:sheet:{month_id}` | 30s | Full 31 Day $\times$ 8 Member matrix | Any meal edit in that month |
 | `month_live_summary:{month_id}` | 30s | Real-time live rate & balances preview | Any meal edit or expense added/adjusted |
-| `idempotency:{uid}:{key}` | 24h | Eliminates duplicate network submissions | Natural expiration after 24h |
+| `idempotency:{uid}:{method}:{path}:{key}` | 24h | Eliminates duplicate network submissions per endpoint | Natural expiration after 24h |
 
 ---
 
