@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuditLogController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DeviceTokenController;
 use App\Http\Controllers\Api\ExpenseController;
+use App\Http\Controllers\Api\MealController;
 use App\Http\Controllers\Api\MemberController;
 use App\Http\Controllers\Api\MonthController;
 use App\Http\Controllers\Api\NotificationController;
@@ -43,6 +44,26 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/{month}/close', 'close')->name('close')->middleware(['idempotent', 'throttle:3,1']);
         Route::post('/{month}/reopen', 'reopen')->name('reopen')->middleware(['idempotent', 'throttle:5,1']);
         Route::patch('/{month}/breakfast-price', 'updateBreakfastPrice')->name('breakfast-price')->middleware('throttle:10,1');
+    });
+
+    Route::controller(MealController::class)->prefix('meals')->name('meals.')->group(function () {
+        Route::get('/my-today', 'myToday')->name('my-today');
+        Route::get('/today-summary', 'todaySummary')->name('today-summary');
+        Route::get('/today-members', 'todayMembers')->name('today-members');
+        Route::get('/today', 'today')->name('today');
+        Route::get('/my-month', 'myMonth')->name('my-month');
+        Route::get('/sheet', 'sheet')->name('sheet');
+        Route::get('/by-date/{date}', 'byDate')->name('by-date');
+        Route::get('/{meal}/history', 'history')->name('history');
+
+        Route::post('/{meal}/opt-in-breakfast', 'optInBreakfast')->name('opt-in-breakfast')->middleware('throttle:30,1');
+        Route::post('/{meal}/opt-out-lunch', 'optOutLunch')->name('opt-out-lunch')->middleware('throttle:30,1');
+        Route::post('/{meal}/opt-out-dinner', 'optOutDinner')->name('opt-out-dinner')->middleware('throttle:30,1');
+
+        Route::patch('/{meal}', 'update')->name('update')->middleware(['idempotent', 'throttle:30,1']);
+        Route::post('/day-tally', 'dayTally')->name('day-tally')->middleware(['idempotent', 'throttle:10,1']);
+        Route::post('/day-off', 'dayOff')->name('day-off')->middleware(['idempotent', 'throttle:10,1']);
+        Route::post('/date-range-off', 'dateRangeOff')->name('date-range-off')->middleware(['idempotent', 'throttle:5,1']);
     });
 
     Route::controller(NotificationController::class)->prefix('notifications')->name('notifications.')->group(function () {

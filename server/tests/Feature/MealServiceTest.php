@@ -22,6 +22,8 @@ beforeEach(function () {
 });
 
 test('optInBreakfast allows silent breakfast opt-in for own meal', function () {
+    Carbon::setTestNow(Carbon::parse('2026-05-10 04:30:00'));
+
     $user = User::factory()->create(['is_active' => true]);
     $month = Month::factory()->create(['year' => 2026, 'month' => 5]);
     $meal = Meal::where('user_id', $user->id)->where('date', '2026-05-10')->first();
@@ -33,6 +35,8 @@ test('optInBreakfast allows silent breakfast opt-in for own meal', function () {
 });
 
 test('optInBreakfast throws exception if attempting to opt in for another user', function () {
+    Carbon::setTestNow(Carbon::parse('2026-05-10 04:30:00'));
+
     $userA = User::factory()->create(['is_active' => true]);
     $userB = User::factory()->create(['is_active' => true]);
     $month = Month::factory()->create(['year' => 2026, 'month' => 5]);

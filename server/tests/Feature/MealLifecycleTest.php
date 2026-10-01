@@ -53,6 +53,8 @@ test('sets default meal counts to (0, 1, 1) on weekdays and (0, 2, 1) on Fridays
 });
 
 test('allows silent opt in to breakfast only when breakfast count is 0', function () {
+    Carbon::setTestNow(Carbon::parse('2026-05-10 04:30:00'));
+
     $user = User::factory()->create(['is_active' => true]);
     $month = Month::factory()->create(['year' => 2026, 'month' => 5]);
     $meal = Meal::where('user_id', $user->id)->where('date', '2026-05-10')->first();

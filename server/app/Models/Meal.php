@@ -66,8 +66,14 @@ class Meal extends Model
 
     public function optInBreakfast(): void
     {
+        $cutoff = Carbon::parse($this->date)->setTime(5, 0, 0);
+
+        if (! now()->lessThan($cutoff)) {
+            throw new \RuntimeException('Too late to opt in for breakfast');
+        }
+
         if ($this->breakfast !== 0) {
-            throw new \Exception('Breakfast is already opted in. Any further changes require manual edit.');
+            throw new \RuntimeException('Breakfast is already opted in. Any further changes require manual edit.');
         }
 
         $this->update(['breakfast' => 1]);
@@ -75,10 +81,10 @@ class Meal extends Model
 
     public function optOutLunch(): void
     {
-        $cutoff = $this->date->copy()->setTimeFromTimeString(self::LUNCH_OPT_CUTOFF);
+        $cutoff = Carbon::parse($this->date)->setTime(5, 0, 0);
 
         if (! now()->lessThan($cutoff)) {
-            throw new \Exception('Too late to opt out of lunch');
+            throw new \RuntimeException('Too late to opt out of lunch');
         }
 
         $this->update(['lunch' => 0]);
@@ -86,10 +92,10 @@ class Meal extends Model
 
     public function optOutDinner(): void
     {
-        $cutoff = $this->date->copy()->setTimeFromTimeString(self::DINNER_OPT_CUTOFF);
+        $cutoff = Carbon::parse($this->date)->setTime(14, 20, 0);
 
         if (! now()->lessThan($cutoff)) {
-            throw new \Exception('Too late to opt out of dinner');
+            throw new \RuntimeException('Too late to opt out of dinner');
         }
 
         $this->update(['dinner' => 0]);
