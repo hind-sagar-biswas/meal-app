@@ -26,8 +26,10 @@ return new class extends Migration
             $table->unique(['year', 'month']);
         });
 
-        DB::statement('ALTER TABLE months ADD CONSTRAINT chk_valid_year CHECK (year >= 2026 AND year < 2029)');
-        DB::statement('ALTER TABLE months ADD CONSTRAINT chk_valid_month CHECK (month >= 1 AND month <= 12)');
+        if (DB::getDriverName() !== 'sqlite') {
+            DB::statement('ALTER TABLE months ADD CONSTRAINT chk_valid_year CHECK (year >= 2026 AND year < 2029)');
+            DB::statement('ALTER TABLE months ADD CONSTRAINT chk_valid_month CHECK (month >= 1 AND month <= 12)');
+        }
     }
 
     /**
@@ -35,8 +37,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        DB::statement('ALTER TABLE months DROP CONSTRAINT chk_valid_month');
-        DB::statement('ALTER TABLE months DROP CONSTRAINT chk_valid_year');
+        if (DB::getDriverName() !== 'sqlite') {
+            DB::statement('ALTER TABLE months DROP CONSTRAINT chk_valid_month');
+            DB::statement('ALTER TABLE months DROP CONSTRAINT chk_valid_year');
+        }
         Schema::dropIfExists('months');
     }
 };
