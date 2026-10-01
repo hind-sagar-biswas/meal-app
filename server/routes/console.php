@@ -11,3 +11,6 @@ Artisan::command('inspire', function () {
 Schedule::command('meal:log')->dailyAt('19:00');
 Schedule::command('meal:log')->dailyAt('19:30');
 Schedule::command('meal:log')->dailyAt('20:00');
+
+Schedule::command('messdb:backup')->dailyAt('03:00');
+Schedule::command('messdb:cleanup')->dailyAt('03:30');
