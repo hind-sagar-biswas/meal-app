@@ -266,13 +266,13 @@ test('byDate returns all meals for specific date', function () {
     $invalidResponse->assertStatus(422);
 });
 
-test('silent opt-in breakfast succeeds before cutoff and fails after cutoff or for other users', function () {
+test('silent opt-in breakfast succeeds at any time for own meal and fails for other users or if already opted in', function () {
     $user1 = User::factory()->create(['is_active' => true]);
     $user2 = User::factory()->create(['is_active' => true]);
     $month = Month::factory()->create(['year' => 2026, 'month' => 10, 'is_closed' => false]);
 
-    // Before cutoff: 4:30 AM
-    Carbon::setTestNow(Carbon::parse('2026-10-01 04:30:00'));
+    // Can opt in at any time of day (e.g. 10:30 AM)
+    Carbon::setTestNow(Carbon::parse('2026-10-01 10:30:00'));
 
     $meal = Meal::where('user_id', $user1->id)->where('date', '2026-10-01')->first();
     $meal->update([
@@ -286,7 +286,7 @@ test('silent opt-in breakfast succeeds before cutoff and fails after cutoff or f
     $this->postJson(route('meals.opt-in-breakfast', $meal))
         ->assertBadRequest();
 
-    // User1 opts in before cutoff
+    // User1 opts in successfully
     Sanctum::actingAs($user1);
     $response = $this->postJson(route('meals.opt-in-breakfast', $meal));
     $response->assertOk()
@@ -298,12 +298,8 @@ test('silent opt-in breakfast succeeds before cutoff and fails after cutoff or f
 
     expect($meal->fresh()->breakfast)->toBe(1);
 
-    // After cutoff: 5:01 AM
-    Carbon::setTestNow(Carbon::parse('2026-10-02 05:01:00'));
-    $meal2 = Meal::where('user_id', $user1->id)->where('date', '2026-10-02')->first();
-    $meal2->update(['breakfast' => 0]);
-
-    $this->postJson(route('meals.opt-in-breakfast', $meal2))
+    // Attempting to opt in again when already opted in fails
+    $this->postJson(route('meals.opt-in-breakfast', $meal))
         ->assertBadRequest();
 });
 

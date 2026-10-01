@@ -359,7 +359,6 @@ class MealService
             ->where('date', $dateString)
             ->first();
 
-        $cutoffBf = $carbonDate->copy()->setTime(5, 0, 0);
         $cutoffLc = $carbonDate->copy()->setTime(5, 0, 0);
         $cutoffDn = $carbonDate->copy()->setTime(14, 20, 0);
         $now = now();
@@ -371,10 +370,10 @@ class MealService
             'date' => $dateString,
             'is_month_closed' => $isClosed,
             'cutoffs' => [
-                'breakfast_cutoff' => '05:00',
+                'breakfast_cutoff' => null,
                 'lunch_cutoff' => '05:00',
                 'dinner_cutoff' => '14:20',
-                'breakfast_opt_in_allowed' => ! $isClosed && $isToday && $now->lessThan($cutoffBf) && ($meal?->breakfast ?? 0) === 0,
+                'breakfast_opt_in_allowed' => ! $isClosed && ($meal?->breakfast ?? 0) === 0,
                 'lunch_opt_out_allowed' => ! $isClosed && $isToday && $now->lessThan($cutoffLc) && ($meal?->lunch ?? 0) > 0,
                 'dinner_opt_out_allowed' => ! $isClosed && $isToday && $now->lessThan($cutoffDn) && ($meal?->dinner ?? 0) > 0,
             ],

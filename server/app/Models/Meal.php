@@ -66,12 +66,6 @@ class Meal extends Model
 
     public function optInBreakfast(): void
     {
-        $cutoff = Carbon::parse($this->date)->setTime(5, 0, 0);
-
-        if (! now()->lessThan($cutoff)) {
-            throw new \RuntimeException('Too late to opt in for breakfast');
-        }
-
         if ($this->breakfast !== 0) {
             throw new \RuntimeException('Breakfast is already opted in. Any further changes require manual edit.');
         }
