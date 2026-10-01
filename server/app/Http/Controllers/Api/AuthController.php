@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Requests\Auth\LogoutRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -44,10 +45,18 @@ class AuthController extends Controller
     }
 
     /**
-     * Revoke current access token.
+     * Revoke current access token and optionally remove device push token.
      */
-    public function logout(Request $request): JsonResponse
+    public function logout(LogoutRequest $request): JsonResponse
     {
+        $deviceToken = $request->input('device_token') ?? $request->input('token');
+
+        if ($deviceToken) {
+            $request->user()->deviceTokens()
+                ->where('token', $deviceToken)
+                ->delete();
+        }
+
         $request->user()->currentAccessToken()?->delete();
 
         return response()->json([
