@@ -31,7 +31,7 @@ class ExpenseController extends Controller
         if ($request->filled('month_id')) {
             $query->where('month_id', $request->input('month_id'));
         } elseif ($request->filled('year') && $request->filled('month')) {
-            $month = Month::where('year', $request->input('year'))->where('month', $request->input('month'))                ->first();
+            $month = Month::where('year', $request->input('year'))->where('month', $request->input('month'))->first();
             $query->where('month_id', $month?->id ?? 0);
         }
 
