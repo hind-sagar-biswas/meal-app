@@ -67,10 +67,11 @@ The app provides **one-tap silent toggles**:
   - Silent.
 
 ### 2.3 Manual Edits, Notes & Guest Meals
-- Any edit made outside cutoff windows or altering counts to $> 1$ (e.g. guest meals) requires a mandatory **`note`** (minimum 2 characters).
+- **Every single manual edit** (`PATCH /api/meals/{meal}`) and batch operation strictly requires a **`note`** (minimum 2 characters).
+- Changing counts at any time (e.g., reducing Friday lunch from 2 to 1, adding guest meals, or editing someone else's count) is a manual edit that creates an immutable `audit_log` and dispatches a notification.
 - **Notification Routing**:
   - **Guest Meal Alert** (`MealCountIncreasedNotification`): Triggered when a user increases their own meal count (e.g. brother visiting for lunch).
-  - **Own Meal Edit** (`OwnMealEditedNotification`): Triggered when a user alters their own meals outside cutoffs.
+  - **Own Meal Edit** (`OwnMealEditedNotification`): Triggered when a user alters their own meals (e.g. Friday lunch 2 to 1).
   - **Peer Meal Edit** (`MemberMealEditedNotification`): Triggered when a roommate or manager adjusts another member's meal count.
 
 ### 2.4 Manager Batch Operations

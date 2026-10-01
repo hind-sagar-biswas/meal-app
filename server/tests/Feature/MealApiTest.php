@@ -9,12 +9,18 @@ use App\Notifications\DayMealOffNotification;
 use App\Notifications\DayMealTallyUpdatedNotification;
 use App\Notifications\MealCountIncreasedNotification;
 use App\Notifications\MemberMealEditedNotification;
+use App\Notifications\OwnMealEditedNotification;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Notification;
 use Laravel\Sanctum\Sanctum;
 
 uses(RefreshDatabase::class);
+
+beforeEach(function () {
+    Cache::flush();
+});
 
 test('unauthenticated user cannot access meal endpoints', function () {
     $this->getJson(route('meals.my-today'))->assertUnauthorized();
@@ -419,6 +425,24 @@ test('manual meal edit creates audit log and dispatches appropriate notification
     Notification::assertSentTo(
         $user1,
         MemberMealEditedNotification::class
+    );
+
+    // Case 3: Changing Friday lunch from 2 to 1 -> triggers OwnMealEditedNotification
+    Sanctum::actingAs($user1);
+    $fridayDate = '2026-10-02'; // Friday
+    $fridayMeal = Meal::where('user_id', $user1->id)->where('date', $fridayDate)->first();
+    expect($fridayMeal->lunch)->toBe(2);
+
+    $this->patchJson(route('meals.update', $fridayMeal), [
+        'breakfast' => 0,
+        'lunch' => 1,
+        'dinner' => 1,
+        'note' => 'Eating outside with colleagues, having 1 meal instead of 2',
+    ])->assertOk();
+
+    Notification::assertSentTo(
+        $user2,
+        OwnMealEditedNotification::class
     );
 });
 
