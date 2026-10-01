@@ -142,3 +142,17 @@ test('authenticated user can log out and revoke current access token', function 
 
     expect($user->tokens()->count())->toBe(0);
 });
+
+test('login is rate limited to 5 attempts per minute', function () {
+    for ($i = 0; $i < 5; $i++) {
+        $this->postJson(route('auth.login'), [
+            'email' => 'brute@example.com',
+            'password' => 'wrong',
+        ]);
+    }
+
+    $this->postJson(route('auth.login'), [
+        'email' => 'brute@example.com',
+        'password' => 'wrong',
+    ])->assertStatus(429);
+});

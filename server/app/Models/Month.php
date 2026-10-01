@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+use Carbon\CarbonInterface;
 use Carbon\CarbonPeriod;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -84,7 +85,7 @@ class Month extends Model
         return self::where('year', $previousMonth->year)->where('month', $previousMonth->month)->first();
     }
 
-    public static function findFromDate(Carbon $date): ?self
+    public static function findFromDate(CarbonInterface $date): ?self
     {
         return self::where('year', $date->year)->where('month', $date->month)->first();
     }
