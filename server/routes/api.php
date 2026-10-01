@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DeviceTokenController;
 use App\Http\Controllers\Api\ExpenseController;
 use App\Http\Controllers\Api\MemberController;
+use App\Http\Controllers\Api\MonthController;
 use App\Http\Controllers\Api\NotificationController;
 use Illuminate\Support\Facades\Route;
 
@@ -32,6 +33,16 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/{expense}', 'show')->name('show');
         Route::post('/', 'store')->name('store')->middleware('idempotent');
         Route::post('/{expense}/adjust', 'adjust')->name('adjust')->middleware('idempotent');
+    });
+
+    Route::controller(MonthController::class)->prefix('months')->name('months.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/current', 'current')->name('current');
+        Route::get('/{month}/live-summary', 'liveSummary')->name('live-summary');
+        Route::get('/{month}/results', 'results')->name('results');
+        Route::post('/{month}/close', 'close')->name('close')->middleware(['idempotent', 'throttle:3,1']);
+        Route::post('/{month}/reopen', 'reopen')->name('reopen')->middleware(['idempotent', 'throttle:5,1']);
+        Route::patch('/{month}/breakfast-price', 'updateBreakfastPrice')->name('breakfast-price')->middleware('throttle:10,1');
     });
 
     Route::controller(NotificationController::class)->prefix('notifications')->name('notifications.')->group(function () {
