@@ -200,6 +200,45 @@ class ExpenseService
     }
 
     /**
+     * Get aggregated monthly expense summary and per-member breakdown.
+     */
+    public function getMonthlyExpenseSummary(Month $month): array
+    {
+        $expenses = Expense::where('month_id', $month->id)->get();
+        $totalBazar = (int) $expenses->where('is_grouped', false)->sum('amount');
+        $totalGrouped = (int) $expenses->where('is_grouped', true)->sum('amount');
+        $totalExpense = $totalBazar + $totalGrouped;
+
+        $activeMembers = User::where('is_active', true)->orderBy('name')->get(['id', 'name', 'email']);
+        $contributions = ExpenseContribution::where('month_id', $month->id)->with('expense:id,is_grouped')->get();
+
+        $memberSummaries = $activeMembers->map(function ($member) use ($contributions) {
+            $memberContribs = $contributions->where('user_id', $member->id);
+            $bazarPaid = (int) $memberContribs->filter(fn ($c) => $c->expense && ! $c->expense->is_grouped)->sum('amount');
+            $groupedPaid = (int) $memberContribs->filter(fn ($c) => $c->expense && $c->expense->is_grouped)->sum('amount');
+
+            return [
+                'user_id' => $member->id,
+                'name' => $member->name,
+                'email' => $member->email,
+                'bazar_paid' => $bazarPaid,
+                'grouped_paid' => $groupedPaid,
+                'total_paid' => $bazarPaid + $groupedPaid,
+            ];
+        });
+
+        return [
+            'month_id' => $month->id,
+            'year' => $month->year,
+            'month' => $month->month,
+            'total_expense' => $totalExpense,
+            'bazar_expense' => $totalBazar,
+            'grouped_expense' => $totalGrouped,
+            'member_contributions' => $memberSummaries->values()->all(),
+        ];
+    }
+
+    /**
      * Validate that contributor rows are valid and sum matches the total amount.
      *
      * @param  array<int, array{user_id: int, amount: int}>  $contributions
