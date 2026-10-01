@@ -66,11 +66,16 @@ jobs:
         run: php -r "file_exists('.env') || copy('.env.prod', '.env');"
 
       - name: 🔒 Inject Secrets into .env
+        env:
+          SECRET_APP_URL: ${{ secrets.APP_URL }}
+          SECRET_DB_DATABASE: ${{ secrets.DB_DATABASE }}
+          SECRET_DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          SECRET_DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         run: |
-          sed -i 's/__APP_URL__/${{ secrets.APP_URL }}/g' .env
-          sed -i 's/__DB_DATABASE__/${{ secrets.DB_DATABASE }}/g' .env
-          sed -i 's/__DB_USERNAME__/${{ secrets.DB_USERNAME }}/g' .env
-          sed -i 's/__DB_PASSWORD__/${{ secrets.DB_PASSWORD }}/g' .env
+          sed -i "s|__APP_URL__|$SECRET_APP_URL|g" .env
+          sed -i "s|__DB_DATABASE__|$SECRET_DB_DATABASE|g" .env
+          sed -i "s|__DB_USERNAME__|$SECRET_DB_USERNAME|g" .env
+          sed -i "s|__DB_PASSWORD__|$SECRET_DB_PASSWORD|g" .env
 
       - name: 🔑 Generate App Key
         run: php artisan key:generate
