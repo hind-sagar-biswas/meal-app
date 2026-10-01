@@ -37,7 +37,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::controller(NotificationController::class)->prefix('notifications')->name('notifications.')->group(function () {
         Route::get('/', 'index')->name('index');
         Route::patch('/{id}/read', 'markAsRead')->name('read');
-        Route::post('/read-all', 'markAllAsRead')->name('read-all')->middleware('throttle:read-all');
-        Route::post('/broadcast', 'broadcast')->name('broadcast')->middleware('throttle:broadcast');
+        Route::post('/read-all', 'markAllAsRead')->name('read-all')->middleware('throttle:10,1');
+        Route::post('/broadcast', 'broadcast')->name('broadcast')->middleware('throttle:3,1');
     });
 });
