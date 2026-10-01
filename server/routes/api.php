@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AuditLogController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DeviceTokenController;
 use App\Http\Controllers\Api\MemberController;
@@ -22,6 +23,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::get('/members', MemberController::class)->name('members.index');
+    Route::get('/audit-logs', AuditLogController::class)->name('audit-logs.index');
 
     Route::controller(NotificationController::class)->prefix('notifications')->name('notifications.')->group(function () {
         Route::get('/', 'index')->name('index');
