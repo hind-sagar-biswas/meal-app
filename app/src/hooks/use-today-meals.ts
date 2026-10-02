@@ -8,6 +8,7 @@ import {
     TodayMembersResponse,
     TodaySummaryResponse,
 } from '@/types/meal';
+import { useAuth } from '@/providers/AuthProvider';
 
 // Query Keys
 export const mealKeys = {
@@ -19,28 +20,37 @@ export const mealKeys = {
 
 // 1. Fetch My Today Data
 export function useMyToday() {
+    const { user } = useAuth();
+
     return useQuery({
         queryKey: mealKeys.myToday(),
         queryFn: () => apiRequest<MyTodayResponse>('/meals/my-today'),
         staleTime: 10 * 1000,
+        enabled: !!user?.id,
     });
 }
 
 // 2. Fetch Today Summary (15s micro-cache on server)
 export function useTodaySummary() {
+    const { user } = useAuth();
+    
     return useQuery({
         queryKey: mealKeys.todaySummary(),
         queryFn: () => apiRequest<TodaySummaryResponse>('/meals/today-summary'),
         staleTime: 15 * 1000,
+        enabled: !!user?.id,
     });
 }
 
 // 3. Fetch Today Members (15s micro-cache on server)
 export function useTodayMembers() {
+    const { user } = useAuth();
+    
     return useQuery({
         queryKey: mealKeys.todayMembers(),
         queryFn: () => apiRequest<TodayMembersResponse>('/meals/today-members'),
         staleTime: 15 * 1000,
+        enabled: !!user?.id,
     });
 }
 

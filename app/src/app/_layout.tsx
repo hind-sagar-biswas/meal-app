@@ -1,7 +1,8 @@
 import { DarkTheme, DefaultTheme, Slot, ThemeProvider, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useColorScheme } from 'react-native';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
 import { AuthProvider, useAuth } from '@/providers/AuthProvider';
@@ -63,11 +64,27 @@ const SunsetTheme = {
 
 export default function RootLayout() {
     const colorScheme = useColorScheme();
+
+    // Persist a single queryClient instance across re-renders
+    const [queryClient] = useState(
+        () =>
+            new QueryClient({
+                defaultOptions: {
+                    queries: {
+                        retry: 2,
+                        refetchOnWindowFocus: false,
+                    },
+                },
+            })
+    );
+
     return (
-        <ThemeProvider value={colorScheme === 'dark' ? SunsetTheme : WinterTheme}>
-            <AuthProvider>
-                <RootLayoutNav />
-            </AuthProvider>
-        </ThemeProvider>
+        <QueryClientProvider client={queryClient}>
+            <ThemeProvider value={colorScheme === 'dark' ? SunsetTheme : WinterTheme}>
+                <AuthProvider>
+                    <RootLayoutNav />
+                </AuthProvider>
+            </ThemeProvider>
+        </QueryClientProvider>
     );
 }

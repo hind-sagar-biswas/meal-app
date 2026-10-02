@@ -1,5 +1,6 @@
 import { apiRequest, setApiAuthToken, setUnauthorizedHandler } from '@/lib/api-client';
 import { clearAuthToken, loadAuthToken, saveAuthToken } from '@/lib/session-storage';
+import { useQueryClient } from '@tanstack/react-query';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
 export type User = {
@@ -22,6 +23,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const queryClient = useQueryClient();
 
     useEffect(() => {
         // Set up the unauthorized interceptor to automatically kick users out if the token dies
@@ -65,6 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             await clearAuthToken();
             setApiAuthToken(null);
             setUser(null);
+            queryClient.clear();
         }
     };
 
