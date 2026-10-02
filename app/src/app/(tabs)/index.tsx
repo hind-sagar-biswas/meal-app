@@ -1,12 +1,25 @@
 import { useRouter } from 'expo-router';
-import { Platform, Pressable, StyleSheet, View } from 'react-native';
+import { useState } from 'react';
+import {
+  Pressable,
+  RefreshControl,
+  ScrollView,
+  View
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { MyMealsCard } from '@/components/partials/MyMealsCard';
+import { RoommatesTodayCard } from '@/components/partials/RoommatesTodayCard';
+import { TodayTallyCard } from '@/components/partials/TodayTallyCard';
 import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { BottomTabInset, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import {
+  useMyToday,
+  useTodayMembers,
+  useTodaySummary,
+} from '@/hooks/use-today-meals';
 import { useAuth } from '@/providers/AuthProvider';
+import { homePageStyle } from '@/styles/home';
 
 function getInitials(name?: string): string {
   if (!name) return 'U';
@@ -34,15 +47,38 @@ export default function HomeScreen() {
   const initials = getInitials(user?.name);
   const formattedDate = getFormattedDate();
 
+  const {
+    data: myTodayData,
+    isLoading: myTodayLoading,
+    refetch: refetchMyToday,
+  } = useMyToday();
+  const { data: summaryData, refetch: refetchSummary } = useTodaySummary();
+  const { data: membersData, refetch: refetchMembers } = useTodayMembers();
+
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await Promise.all([refetchMyToday(), refetchSummary(), refetchMembers()]);
+    setRefreshing(false);
+  };
+
+  const meal = myTodayData?.data?.meal;
+  const cutoffs = myTodayData?.data?.cutoffs;
+  const serverTime = myTodayData?.data?.server_time;
+
   const handleProfilePress = () => {
-    router.navigate('/(tabs)/profile');
+    router.push('/profile');
+  };
+
+  const handleEditPress = () => {
+    // Phase 5 will hook this up to the EditMealWithNote BottomSheet
   };
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.base300 }]}>
       <SafeAreaView style={styles.safeArea} edges={['top']}>
-
-        {/* Top Header Bar with Profile Avatar */}
+        {/* Top Header Bar */}
         <View style={styles.header}>
           <View style={styles.headerTextGroup}>
             <ThemedText style={[styles.brandTitle, { color: colors.baseContent }]}>
@@ -53,7 +89,6 @@ export default function HomeScreen() {
             </ThemedText>
           </View>
 
-          {/* Profile Avatar Button */}
           <Pressable
             style={({ pressed }) => [
               styles.avatarButton,
@@ -64,94 +99,27 @@ export default function HomeScreen() {
                 transform: [{ scale: pressed ? 0.95 : 1 }],
               },
             ]}
-            onPress={handleProfilePress}
-            accessibilityRole="button"
-            accessibilityLabel="Open Profile"
-          >
+            onPress={handleProfilePress} accessibilityRole="button" accessibilityLabel="Open Profile">
             <ThemedText style={[styles.avatarText, { color: colors.primary }]}>
               {initials}
             </ThemedText>
           </Pressable>
         </View>
 
-        {/* Main Dashboard Content */}
-        <View style={styles.content}>
-          <ThemedView
-            type="backgroundElement"
-            style={[styles.placeholderCard, { borderColor: colors.cardBorder }]}
-          >
-            <ThemedText type="smallBold" style={{ color: colors.baseContent }}>
-              Today's Dashboard
-            </ThemedText>
-            <ThemedText type="small" style={{ color: colors.textSecondary }}>
-              Welcome back, {user?.name || 'Member'}.
-            </ThemedText>
-          </ThemedView>
-        </View>
+        {/* Scrollable Dashboard Body */}
+        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false} refreshControl={
+          <RefreshControl refreshing={refreshing || myTodayLoading} onRefresh={onRefresh} tintColor={colors.primary} />
+        }>
+
+          <MyMealsCard meal={meal} cutoffs={cutoffs} onEditPress={handleEditPress} />
+
+          <TodayTallyCard summary={summaryData?.data} />
+
+          <RoommatesTodayCard members={membersData?.data} />
+        </ScrollView>
       </SafeAreaView>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-  },
-  safeArea: {
-    flex: 1,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  headerTextGroup: {
-    gap: 2,
-  },
-  brandTitle: {
-    fontSize: 22,
-    fontWeight: '800',
-    letterSpacing: -0.5,
-  },
-  dateText: {
-    fontSize: 13,
-    fontWeight: '500',
-  },
-  avatarButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1.5,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.06,
-        shadowRadius: 4,
-      },
-      android: { elevation: 2 },
-      web: { boxShadow: '0 2px 4px rgba(0,0,0,0.06)' },
-    }),
-  },
-  avatarText: {
-    fontSize: 16,
-    fontWeight: '700',
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 16,
-    paddingTop: 8,
-    paddingBottom: BottomTabInset + Spacing.four,
-  },
-  placeholderCard: {
-    borderRadius: 16,
-    padding: 16,
-    borderWidth: 1,
-    gap: 8,
-  },
-});
-
+const styles = homePageStyle;
