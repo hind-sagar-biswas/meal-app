@@ -6,7 +6,6 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Facades\Cache;
 
 class Meal extends Model
 {
@@ -31,7 +30,7 @@ class Meal extends Model
         return $this->belongsTo(Month::class);
     }
 
-    public static function make(Carbon|string $date, ?Month $month = null)
+    public static function make(Carbon|string $date, ?Month $month = null): void
     {
         $carbonDate = $date instanceof Carbon ? $date : Carbon::parse($date);
 
@@ -39,14 +38,15 @@ class Meal extends Model
             $month = Month::where('year', $carbonDate->year)->where('month', $carbonDate->month)->firstOrFail();
         }
 
-        $users = Cache::rememberForever(User::CACHE_KEY, fn () => User::where('is_active', true)->get(['id', 'name', 'email']));
+        $activeUserIds = User::where('is_active', true)->pluck('id');
         $lunchDefault = $carbonDate->isFriday() ? 2 : 1;
 
-        foreach ($users as $user) {
-            self::create([
-                'user_id' => $user->id,
-                'month_id' => $month->id,
+        foreach ($activeUserIds as $userId) {
+            self::firstOrCreate([
+                'user_id' => $userId,
                 'date' => $carbonDate->toDateString(),
+            ], [
+                'month_id' => $month->id,
                 'breakfast' => 0,
                 'lunch' => $lunchDefault,
                 'dinner' => 1,
