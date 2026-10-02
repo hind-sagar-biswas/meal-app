@@ -17,7 +17,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
 import { useTheme } from '@/hooks/use-theme';
-import { ApiError, apiRequest } from '@/lib/api-client';
+import { ApiError, POST } from '@/lib/api-client';
 import { useAuth, User } from '@/providers/AuthProvider';
 import { loginSchema, LoginSchema } from '@/schemas/login';
 import { loginStyle } from '@/styles/login';
@@ -50,13 +50,10 @@ export default function LoginScreen() {
         try {
             const deviceName = Device.modelName ?? Device.deviceName ?? `${Platform.OS.toUpperCase()} App`;
 
-            const response = await apiRequest<LoginApiResponse>('/auth/login', {
-                method: 'POST',
-                body: {
-                    email: data.email.trim(),
-                    password: data.password,
-                    device_name: deviceName,
-                },
+            const response = await POST<LoginApiResponse>('/auth/login', {
+                email: data.email.trim(),
+                password: data.password,
+                device_name: deviceName,
             });
 
             if (!response.user.is_active) {

@@ -85,3 +85,43 @@ export async function apiRequest<ResponseBody>(
 
     return responseBody as ResponseBody;
 }
+
+export async function GET<ResponseBody>(
+    path: string,
+    body?: unknown,
+    options?: RequestOptions
+) {
+    return apiRequest<ResponseBody>(path, { method: 'GET', body, ...options });
+}
+
+export async function POST<ResponseBody>(
+    path: string,
+    body?: unknown,
+    options?: RequestOptions
+) {
+    return apiRequest<ResponseBody>(path, { method: 'POST', body, ...options });
+}
+
+export async function PATCH<ResponseBody>(
+    path: string,
+    body?: unknown,
+    options?: RequestOptions
+) {
+    return apiRequest<ResponseBody>(path, { method: 'PATCH', body, ...options });
+}
+
+export async function PUT<ResponseBody>(
+    path: string,
+    body?: unknown,
+    options?: RequestOptions
+) {
+    return apiRequest<ResponseBody>(path, { method: 'PUT', body, ...options });
+}
+
+export async function DELETE<ResponseBody>(
+    path: string,
+    body?: unknown,
+    options?: RequestOptions
+) {
+    return apiRequest<ResponseBody>(path, { method: 'DELETE', body, ...options });
+}
