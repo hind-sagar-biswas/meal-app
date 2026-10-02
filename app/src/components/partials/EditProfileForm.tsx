@@ -1,3 +1,4 @@
+import { BottomSheetTextInput, BottomSheetView } from '@expo/ui/community/bottom-sheet';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as Haptics from 'expo-haptics';
 import { useRef, useState } from 'react';
@@ -67,7 +68,7 @@ export function EditProfileForm({ onSuccess }: { onSuccess: () => void }) {
     };
 
     return (
-        <View style={styles.container}>
+        <BottomSheetView style={styles.container}>
             <View style={styles.form}>
                 {/* Name Field */}
                 <Controller
@@ -76,7 +77,7 @@ export function EditProfileForm({ onSuccess }: { onSuccess: () => void }) {
                     render={({ field: { onChange, onBlur, value } }) => (
                         <View style={styles.formControl}>
                             <ThemedText style={[styles.label, { color: colors.baseContent }]}>Name</ThemedText>
-                            <TextInput
+                            <BottomSheetTextInput
                                 style={[
                                     styles.input,
                                     {
@@ -180,7 +181,7 @@ export function EditProfileForm({ onSuccess }: { onSuccess: () => void }) {
                     )}
                 </Pressable>
             </View>
-        </View>
+        </BottomSheetView>
     );
 }
 

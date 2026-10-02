@@ -1,9 +1,11 @@
+import { BottomSheetTextInput, BottomSheetView } from '@expo/ui/community/bottom-sheet';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as Haptics from 'expo-haptics';
 import { SymbolView } from 'expo-symbols';
 import { useRef, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { ActivityIndicator, Alert, Platform, Pressable, TextInput, View } from 'react-native';
+
 
 import { ThemedText } from '@/components/themed-text';
 import { useTheme } from '@/hooks/use-theme';
@@ -68,7 +70,7 @@ export function ChangePasswordForm({ onSuccess }: { onSuccess: () => void }) {
     };
 
     return (
-        <View style={styles.container}>
+        <BottomSheetView style={styles.container}>
             <View style={styles.form}>
 
                 {/* Current Password */}
@@ -91,7 +93,7 @@ export function ChangePasswordForm({ onSuccess }: { onSuccess: () => void }) {
                                     },
                                 ]}
                             >
-                                <TextInput
+                                <BottomSheetTextInput
                                     style={[styles.passwordInput, { color: colors.baseContent }]}
                                     placeholder="Enter current password"
                                     placeholderTextColor={colors.textSecondary}
@@ -250,7 +252,7 @@ export function ChangePasswordForm({ onSuccess }: { onSuccess: () => void }) {
                     )}
                 </Pressable>
             </View>
-        </View>
+        </BottomSheetView>
     );
 }
 
