@@ -36,8 +36,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 if (token) {
                     setApiAuthToken(token);
                     // Validate the token and ensure the user is still active
-                    const response = await apiRequest<{ data: User }>('/auth/me');
-                    setUser(response.data);
+                    const response = await apiRequest<{ user: User }>('/auth/me');
+                    setUser(response.user);
                 }
             } catch (error) {
                 console.error('Auth validation failed on startup:', error);
