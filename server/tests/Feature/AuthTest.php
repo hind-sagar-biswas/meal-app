@@ -156,3 +156,86 @@ test('login is rate limited to 5 attempts per minute', function () {
         'password' => 'wrong',
     ])->assertStatus(429);
 });
+
+test('authenticated user can update their name and email', function () {
+    $user = User::factory()->create([
+        'name' => 'Old Name',
+        'email' => 'old@example.com',
+        'is_active' => true,
+    ]);
+
+    Sanctum::actingAs($user);
+
+    $response = $this->patchJson(route('auth.profile.update'), [
+        'name' => 'New Name',
+        'email' => 'new@example.com',
+    ]);
+
+    $response->assertOk()
+        ->assertJson([
+            'message' => 'Profile updated successfully.',
+            'user' => [
+                'id' => $user->id,
+                'name' => 'New Name',
+                'email' => 'new@example.com',
+            ],
+        ]);
+
+    expect($user->fresh()->name)->toBe('New Name')
+        ->and($user->fresh()->email)->toBe('new@example.com');
+});
+
+test('user cannot update email to another existing user email', function () {
+    $user1 = User::factory()->create(['email' => 'user1@example.com']);
+    $user2 = User::factory()->create(['email' => 'user2@example.com']);
+
+    Sanctum::actingAs($user1);
+
+    $response = $this->patchJson(route('auth.profile.update'), [
+        'name' => 'User One',
+        'email' => 'user2@example.com',
+    ]);
+
+    $response->assertUnprocessable()
+        ->assertJsonValidationErrors(['email']);
+});
+
+test('authenticated user can update their password with valid current password', function () {
+    $user = User::factory()->create([
+        'password' => Hash::make('old-secret-password'),
+        'is_active' => true,
+    ]);
+
+    Sanctum::actingAs($user);
+
+    $response = $this->putJson(route('auth.password.update'), [
+        'current_password' => 'old-secret-password',
+        'password' => 'new-strong-password123',
+        'password_confirmation' => 'new-strong-password123',
+    ]);
+
+    $response->assertOk()
+        ->assertJson([
+            'message' => 'Password updated successfully.',
+        ]);
+
+    expect(Hash::check('new-strong-password123', $user->fresh()->password))->toBeTrue();
+});
+
+test('password update fails with invalid current password', function () {
+    $user = User::factory()->create([
+        'password' => Hash::make('old-secret-password'),
+        'is_active' => true,
+    ]);
+
+    Sanctum::actingAs($user);
+
+    $response = $this->putJson(route('auth.password.update'), [
+        'current_password' => 'wrong-current-password',
+        'password' => 'new-strong-password123',
+        'password_confirmation' => 'new-strong-password123',
+    ]);
+
+    $response->assertUnprocessable()
+        ->assertJsonValidationErrors(['current_password']);
+});

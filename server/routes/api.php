@@ -16,6 +16,8 @@ Route::controller(AuthController::class)->prefix('auth')->name('auth.')->group(f
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout', 'logout')->name('logout');
         Route::get('/me', 'me')->name('me');
+        Route::patch('/profile', 'updateProfile')->name('profile.update')->middleware('throttle:10,1');
+        Route::put('/password', 'updatePassword')->name('password.update')->middleware('throttle:5,1');
     });
 });
 
