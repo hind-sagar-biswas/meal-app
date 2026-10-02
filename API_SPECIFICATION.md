@@ -53,6 +53,8 @@ This document defines the complete REST API contract, business rules, payloads, 
 | **Auth** | `POST` | `/api/auth/login` | `auth.login` | `throttle:login` |
 | | `POST` | `/api/auth/logout` | `auth.logout` | `auth:sanctum` |
 | | `GET` | `/api/auth/me` | `auth.me` | `auth:sanctum` |
+| | `PATCH` | `/api/auth/profile` | `auth.profile.update` | `auth:sanctum`, `throttle:10,1` |
+| | `PUT` | `/api/auth/password` | `auth.password.update` | `auth:sanctum`, `throttle:5,1` |
 | **Tokens** | `POST` | `/api/device-tokens` | `device-tokens.store` | `auth:sanctum` |
 | | `DELETE` | `/api/device-tokens` | `device-tokens.destroy` | `auth:sanctum` |
 | **Members** | `GET` | `/api/members` | `members.index` | `auth:sanctum` |
@@ -128,7 +130,49 @@ This document defines the complete REST API contract, business rules, payloads, 
 
 #### `GET /api/auth/me`
 - **Headers**: `Authorization: Bearer <token>`
-- **Response (200 OK)**: `{ "data": { "id": 1, "name": "Alice", "email": "alice@example.com", "is_active": true, "created_at": "..." } }`
+- **Response (200 OK)**: `{ "user": { "id": 1, "name": "Alice", "email": "alice@example.com", "is_active": true, "created_at": "..." } }`
+
+#### `PATCH /api/auth/profile`
+- **Headers**: `Authorization: Bearer <token>`
+- **Rate Limit**: 10 requests / min (`throttle:10,1`)
+- **Body**:
+  ```json
+  {
+    "name": "Alice Wonderland",
+    "email": "alice.new@example.com"
+  }
+  ```
+- **Response (200 OK)**:
+  ```json
+  {
+    "message": "Profile updated successfully.",
+    "user": {
+      "id": 1,
+      "name": "Alice Wonderland",
+      "email": "alice.new@example.com",
+      "is_active": true,
+      "created_at": "..."
+    }
+  }
+  ```
+
+#### `PUT /api/auth/password`
+- **Headers**: `Authorization: Bearer <token>`
+- **Rate Limit**: 5 requests / min (`throttle:5,1`)
+- **Body**:
+  ```json
+  {
+    "current_password": "current_password123",
+    "password": "new_secure_password456",
+    "password_confirmation": "new_secure_password456"
+  }
+  ```
+- **Response (200 OK)**:
+  ```json
+  {
+    "message": "Password updated successfully."
+  }
+  ```
 
 #### `POST /api/device-tokens`
 - **Body**: `{ "token": "ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]" }`
