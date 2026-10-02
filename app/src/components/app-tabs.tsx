@@ -12,21 +12,25 @@ export default function AppTabs() {
       backgroundColor={colors.background}
       indicatorColor={colors.backgroundElement}
       labelStyle={{ selected: { color: colors.text } }}>
+
+      {/* 1. Today Tab (Home) */}
       <NativeTabs.Trigger name="index">
-        <NativeTabs.Trigger.Label>Home</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Label>Today</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
-          src={require('@/assets/images/tabIcons/home.png')}
-          renderingMode="template"
+          md={{ default: 'calendar_today', selected: 'calendar_month' }}
+          sf={{ default: 'calendar', selected: 'calendar' }}
         />
       </NativeTabs.Trigger>
 
+      {/* 5. Profile Tab (Replaces Ledger for now) */}
       <NativeTabs.Trigger name="profile">
         <NativeTabs.Trigger.Label>Profile</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
-          src={require('@/assets/images/tabIcons/explore.png')}
-          renderingMode="template"
+          md={{ default: 'person_outline', selected: 'person' }}
+          sf={{ default: 'person.crop.circle', selected: 'person.crop.circle.fill' }}
         />
       </NativeTabs.Trigger>
+
     </NativeTabs>
   );
 }
